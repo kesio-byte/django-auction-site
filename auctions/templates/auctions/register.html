@@ -1,0 +1,39 @@
+{% extends "auctions/layout.html" %}
+
+{% block content %}
+  <h2>Register</h2>
+
+  {% if message %}
+    <div class="alert alert-danger">{{ message }}</div>
+  {% endif %}
+
+  <form method="post" class="mt-3">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" name="username" id="username" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" name="email" id="email" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" name="password" id="password" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="confirmation" class="form-label">Confirm Password</label>
+      <input type="password" name="confirmation" id="confirmation" class="form-control" required>
+    </div>
+
+    <button type="submit" class="btn btn-success">Register</button>
+  </form>
+
+  <p class="mt-3">
+    Already have an account? 
+    <a href="{% url 'login' %}">Login here</a>.
+  </p>
+{% endblock %}

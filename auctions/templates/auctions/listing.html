@@ -1,0 +1,189 @@
+{% extends "auctions/layout.html" %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+  <h2>{{ listing.title }}</h2>
+
+  {% if listing.image %}
+    <img src="{{ listing.image.url }}" alt="{{ listing.title }}" class="img-fluid mb-3" style="max-width:300px;">
+  {% endif %}
+
+  <p>{{ listing.description }}</p>
+
+{% if listing.active %}
+  <p><strong>Current Price:</strong> ${{ current_price }}</p>
+{% else %}
+  <p class="alert alert-warning">
+    <strong>Final Price:</strong> ${{ listing.final_price }}
+  </p>
+{% endif %}
+{% if user == listing.owner %}
+  <h3 class="mt-4">
+    Bid History 
+    <span class="badge bg-info ms-2">
+      Total Bids: {{ listing.bids.count }}
+    </span>
+  </h3>
+
+  <!-- Recent 5 bids -->
+  <ul class="list-group mb-2">
+    {% for bid in listing.bids.all|dictsortreversed:"timestamp"|slice:":5" %}
+      <li class="list-group-item d-flex justify-content-between align-items-center 
+                 {% cycle 'list-group-item-light' 'list-group-item-secondary' %}">
+        <div>
+          <span class="fw-bold text-primary">
+            <i class="bi bi-person-circle"></i> {{ bid.bidder.username }}
+          </span>
+          <span class="ms-2">
+            bid <span class="fw-bold text-success">${{ bid.amount }}</span>
+          </span>
+          <small class="text-muted ms-2">
+            <i class="bi bi-clock"></i> {{ bid.timestamp|date:"M d, Y H:i" }}
+          </small>
+        </div>
+
+        {% if bid == highest_bid %}
+          <span class="badge bg-success">
+            <i class="bi bi-trophy-fill"></i> Highest Bid
+          </span>
+          {% if listing.winner == bid.bidder %}
+            <span class="badge bg-warning text-dark ms-2">
+              <i class="bi bi-award-fill"></i> Winner
+            </span>
+          {% endif %}
+        {% endif %}
+      </li>
+    {% empty %}
+      <li class="list-group-item">No bids yet.</li>
+    {% endfor %}
+  </ul>
+
+  <!-- Collapsible full history -->
+  <div class="collapse" id="fullBidHistory">
+    <ul class="list-group mb-4">
+      {% for bid in listing.bids.all|dictsortreversed:"timestamp" %}
+        <li class="list-group-item d-flex justify-content-between align-items-center 
+                   {% cycle 'list-group-item-light' 'list-group-item-secondary' %}">
+          <div>
+            <span class="fw-bold text-primary">
+              <i class="bi bi-person-circle"></i> {{ bid.bidder.username }}
+            </span>
+            <span class="ms-2">
+              bid <span class="fw-bold text-success">${{ bid.amount }}</span>
+            </span>
+            <small class="text-muted ms-2">
+              <i class="bi bi-clock"></i> {{ bid.timestamp|date:"M d, Y H:i" }}
+            </small>
+          </div>
+
+          {% if bid == highest_bid %}
+            <span class="badge bg-success">
+              <i class="bi bi-trophy-fill"></i> Highest Bid
+            </span>
+            {% if listing.winner == bid.bidder %}
+              <span class="badge bg-warning text-dark ms-2">
+                <i class="bi bi-award-fill"></i> Winner
+              </span>
+            {% endif %}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Toggle button -->
+  <button class="btn btn-outline-primary btn-sm" type="button" 
+          data-bs-toggle="collapse" data-bs-target="#fullBidHistory" 
+          aria-expanded="false" aria-controls="fullBidHistory"
+          onclick="this.innerText = this.innerText.includes('Show') ? 'Hide Full History' : 'Show Full History'">
+    Show Full History
+  </button>
+{% endif %}
+
+  {% if user.is_authenticated %}
+    {% if listing.active %}
+      
+      <!-- Bid form (hidden from owner) -->
+      {% if user != listing.owner %}
+        <form method="post" class="mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="bid">
+          {{ form.as_p }}
+          <button type="submit" class="btn btn-primary">Place Bid</button>
+        </form>
+      {% endif %}
+
+      <!-- Comment form -->
+      <form method="post" class="mb-3">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="comment">
+        {{ comment_form.text }}
+        {% if comment_form.text.errors %}
+          <div class="alert alert-danger mt-2">
+            {{ comment_form.text.errors }}
+          </div>
+        {% endif %}
+        <button type="submit" class="btn btn-secondary">Add Comment</button>
+      </form>
+
+      <!-- Watchlist toggle (hidden from owner) -->
+      {% if user != listing.owner %}
+        <form method="post" class="mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="watchlist">
+          <button type="submit" name="watchlist" class="btn btn-info">
+            {% if listing in user.watchlist.all %}
+              Remove from Watchlist
+            {% else %}
+              Add to Watchlist
+            {% endif %}
+          </button>
+        </form>
+      {% endif %}
+
+      <!-- Close auction (only for owner) -->
+      {% if user == listing.owner %}
+        <form method="post" class="mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="close">
+          <button type="submit" name="close" class="btn btn-danger">Close Auction</button>
+        </form>
+      {% endif %}
+
+      <!-- Comments -->
+      <h3 class="mt-4">Comments</h3>
+      <ul class="list-group mb-5">
+        {% for comment in comments %}
+          <li class="list-group-item">
+            <strong>{{ comment.commenter.username }}:</strong> {{ comment.text }}
+          </li>
+        {% empty %}
+          <li class="list-group-item">No comments yet.</li>
+        {% endfor %}
+      </ul>
+
+{% else %}
+  <!-- Auction closed -->
+  {% if listing.winner %}
+    <p class="alert alert-success d-flex justify-content-between align-items-center">
+      <span>
+        <strong>Final Price:</strong> ${{ listing.final_price }}
+      </span>
+      <span class="badge bg-primary">
+        <i class="bi bi-award-fill"></i> Winner: {{ listing.winner.username }}
+      </span>
+    </p>
+    {% if user == listing.winner %}
+      <p class="alert alert-info">
+         Congratulations, you won this auction!
+      </p>
+    {% endif %}
+  {% else %}
+    <p class="alert alert-warning">
+      This auction is closed. No bids were placed.
+    </p>
+   {% endif %}
+  {% endif %}
+ {% endif %}
+</div>
+{% endblock %}

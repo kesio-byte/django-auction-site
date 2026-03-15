@@ -1,0 +1,52 @@
+/* General Page Styling */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #fafafa;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5 {
+    font-family: 'Abril Fatface', cursive;
+    font-weight: 400;
+    color: #222;
+}
+
+/* Navigation Bar */
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    background-color: #333;
+    padding: 10px;
+    margin: 0;
+}
+nav ul li a {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+}
+nav ul li a:hover {
+    color: #ffcc00;
+}
+
+/* Navbar Brand */
+.navbar-brand span {
+    font-family: 'Abril Fatface', cursive;
+    font-weight: 400;
+    color: #fff;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    background-color: #f4f4f4;
+    color: #555;
+    font-size: 0.9em;
+    font-family: 'Roboto', sans-serif;
+    padding: 10px;
+    margin-top: 40px;
+}
