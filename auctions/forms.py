@@ -1,6 +1,18 @@
 from django import forms
 from .models import Listing
 from .models import Comment
+from .models import Category
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip().title()
+        if Category.objects.filter(name=name).exists():
+            raise forms.ValidationError(f"Category '{name}' already exists.")
+        return name
 
 class CreateListingForm(forms.ModelForm):
     class Meta:
@@ -67,3 +79,15 @@ class CommentForm(forms.ModelForm):
         if text and len(text) > 500:          # maximum 500 characters
             raise forms.ValidationError("Comment cannot exceed 500 characters.")
         return text
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip().title()
+        if Category.objects.filter(name=name).exists():
+            raise forms.ValidationError(f"Category '{name}' already exists.")
+        return name
+

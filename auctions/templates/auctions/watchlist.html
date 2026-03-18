@@ -1,7 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block content %}
-  <h2 class="mb-4">
+  <h2 class="mb-4 text-center">
     My Watchlist 
     <span class="badge bg-info text-dark ms-2">{{ watchlist_count }}</span>
   </h2>
@@ -20,6 +20,10 @@
             <h5 class="card-title">{{ listing.title }}</h5>
             <p class="card-text text-muted">{{ listing.description|truncatewords:20 }}</p>
 
+            <!-- New fields -->
+            <p class="mb-1"><strong>Category:</strong> {{ listing.category.name }}</p>
+            <p class="mb-2"><strong>Listed by:</strong> {{ listing.owner.username }}</p>
+
             {% if listing.active %}
               <span class="badge bg-success mb-2">Active</span>
               <p><strong>Current Price:</strong> ${{ listing.current_price }}</p>
@@ -34,7 +38,7 @@
       </div>
     {% empty %}
       <div class="col-12">
-        <div class="alert alert-info">You have no items in your watchlist.</div>
+        <div class="alert alert-info text-center">You have no items in your watchlist.</div>
       </div>
     {% endfor %}
   </div>

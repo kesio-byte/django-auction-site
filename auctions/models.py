@@ -10,6 +10,14 @@ def validate_contains_letter(value):
     if not re.search(r"[A-Za-z]", value):
         raise ValidationError("Must contain at least one letter.")
 
+# ---- Image model imagefield to category ----
+class Category(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+    image = models.ImageField(upload_to="category_images/", blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
 # ---- User model extending abstractUser ----
 class User(AbstractUser):
     # Extend if needed
@@ -58,13 +66,6 @@ class Listing(models.Model):
 
         # Return the hightest bid
         return highest_bid.amount if highest_bid else self.starting_bid
-
-# ---- Category model class ----
-class Category(models.Model):
-    name = models.CharField(max_length=64)
-
-    def __str__(self):
-        return self.name
 
 #       ---- Bid model class ----
 class Bid(models.Model):

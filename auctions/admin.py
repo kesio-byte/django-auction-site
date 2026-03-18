@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 from .models import User, Category, Listing, Bid, Comment
+from django.core.exceptions import ValidationError
+from django.contrib import messages
 
 
 # ✅ Inline classes for Bids and Comments
@@ -19,15 +21,14 @@ class CommentInline(admin.TabularInline):
     readonly_fields = ("timestamp",)
     show_change_link = True
 
-
-# ✅ Category Admin with clickable listing count
+# ✅ Category Admin with clickable listing count + duplicate validation
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "listing_count")
+    list_display = ("name", "listing_count", "image_preview")
     search_fields = ("name",)
     ordering = ("name",)
 
     def listing_count(self, obj):
-        count = obj.listings.count()  # assumes Listing has ForeignKey(Category, related_name="listings")
+        count = obj.listings.count()
         url = (
             reverse("admin:auctions_listing_changelist")
             + f"?category__id__exact={obj.id}"
@@ -36,6 +37,12 @@ class CategoryAdmin(admin.ModelAdmin):
 
     listing_count.short_description = "Number of Listings"
 
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="max-height: 60px;" />', obj.image.url)
+        return "No image"
+
+    image_preview.short_description = "Thumbnail"
 
 # ✅ Listing Admin with owner filter + date hierarchy + field grouping + inlines
 class ListingAdmin(admin.ModelAdmin):
@@ -44,7 +51,7 @@ class ListingAdmin(admin.ModelAdmin):
     search_fields = ("title", "description")
     date_hierarchy = "created_at"
  
-    # 👇 Mark created_at as read-only
+    # Mark created_at as read-only
     readonly_fields = ("created_at",)
 
     fieldsets = (

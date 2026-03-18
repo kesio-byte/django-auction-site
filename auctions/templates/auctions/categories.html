@@ -1,18 +1,64 @@
 {% extends "auctions/layout.html" %}
 
 {% block content %}
-<h2>Categories</h2>
-<ul class="list-group">
-  {% for category in categories %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-      <a href="{% url 'category_listings' category.id %}">
-        {{ category.name }}
-      </a>
-      <span class="badge bg-primary">{{ category.active_count }}</span>
-    </li>
-  {% empty %}
-    <li class="list-group-item">No categories available.</li>
-  {% endfor %}
-</ul>
+<!-- Banner section -->
+<div class="py-4 mb-4 text-center" 
+     style="background: linear-gradient(135deg, #fdf3e7, #e6d5c3); color: #5a4634;">
+  <h2 class="fw-bold">Browse Categories</h2>
+  <p class="mb-0">Discover auctions by category and explore listings below</p>
+</div>
 
+<div class="row">
+  {% for category in categories %}
+    <div class="col-md-6 mb-4">
+      <div class="card shadow-sm border-0 category-card">
+        <div class="card-body">
+          <!-- Category header with icon -->
+          <div class="d-flex align-items-center mb-3">
+            {% if category.image %}
+              <img src="{{ category.image.url }}" alt="{{ category.name }}" 
+                   style="height:32px; width:32px; object-fit:cover; border-radius:50%; margin-right:10px;">
+            {% endif %}
+            <h5 class="mb-0">
+              <a href="{% url 'category_listings' category.id %}" class="text-decoration-none text-dark">
+                {{ category.name }}
+              </a>
+            </h5>
+            <span class="badge bg-secondary ms-2">{{ category.listings.count }}</span>
+          </div>
+
+          <!-- Listings grid -->
+          <div class="row">
+            {% for listing in category.listings.all %}
+              <div class="col-md-6 mb-6">
+                <div class="card h-100 border-light listing-card text-center">
+                  {% if listing.image %}
+                    <img src="{{ listing.image.url }}" class="card-img-top" 
+                         alt="{{ listing.title }}" style="height:80px; width:80px; object-fit:cover; margin:0 auto;">
+                  {% endif %}
+                  <div class="card-body">
+                    <h6 class="card-title">
+                      <a href="{% url 'listing' listing.id %}" class="stretched-link text-dark">
+                        {{ listing.title }}
+                      </a>
+                    </h6>
+                    <p class="card-text text-muted mb-1">Starting bid: ${{ listing.starting_bid }}</p>
+                    <p class="card-text fw-bold">Current price: ${{ listing.current_price }}</p>
+                  </div>
+                  <div class="card-footer">
+                    Click to view details
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <p class="text-muted">No listings available in this category.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-center">No categories available.</p>
+  {% endfor %}
+</div>
 {% endblock %}
