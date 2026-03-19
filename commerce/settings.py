@@ -26,10 +26,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '6ps8j!crjgrxt34cqbqn7x&b3y%(fny8k8nh21+qa)%ws3fh!q'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+DEBUG = False
 
+# Define the domains/IPs Django is allowed to serve
+ALLOWED_HOSTS = [
+    '127.0.0.1',   # local development
+    'localhost',   # local dev
+    '[::1]',       # IPv6 localhost
+    'yourdomain.com',  # replace with your production domain
+    'your-server-ip'   # optional, if you access via IP
+]
 
 # Application definition
 

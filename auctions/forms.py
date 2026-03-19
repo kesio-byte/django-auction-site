@@ -2,6 +2,8 @@ from django import forms
 from .models import Listing
 from .models import Comment
 from .models import Category
+import re
+
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -60,17 +62,36 @@ class BidForm(forms.Form):
         }
     )
 
+# ----- Comment Form -----
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['text']
+        fields = ['description']
         widgets = {
-            'text': forms.Textarea(attrs={
+            'description': forms.Textarea(attrs={
                 'class': 'form-control mb-2',
                 'placeholder': 'Add a comment',
                 'rows': 3
             }),
         }
+
+    def clean_description(self):
+        description = self.cleaned_data.get("description", "").strip()
+
+        # Rule 1: no digit-only comments
+        if description.isdigit():
+            raise forms.ValidationError("Comment cannot be only digits.")
+
+        # Rule 2: minimum length
+        if len(description) < 10:
+            raise forms.ValidationError("Comment must be at least 10 characters long.")
+
+        # Rule 3: no symbols (only letters, numbers, spaces)
+        if not re.match(r'^[A-Za-z0-9\s]+$', description):
+            raise forms.ValidationError("Comment cannot contain symbols or special characters.")
+
+        return description
+
 
     def clean_text(self):
         text = self.cleaned_data.get("text")

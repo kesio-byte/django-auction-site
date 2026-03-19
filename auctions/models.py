@@ -81,7 +81,7 @@ class Bid(models.Model):
 class Comment(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
     commenter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
-    text = models.TextField(
+    description = models.TextField(
         validators=[
             MinLengthValidator(2, "Comment must be at least 2 characters."),
             MaxLengthValidator(500, "Comment cannot exceed 500 characters.")
@@ -90,7 +90,7 @@ class Comment(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
-        if self.text.isdigit():
+        if self.description.isdigit():
             raise ValidationError("Comment cannot be only digits.")
 
     def __str__(self):
@@ -98,3 +98,5 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
+
+

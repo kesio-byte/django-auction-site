@@ -1,0 +1,20 @@
+{% extends "auctions/layout.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+    <div>
+      <h4 class="alert-heading">Page Not Found</h4>
+      <p>The listing you’re trying to access has been removed or does not exist.</p>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'index' %}" class="btn btn-primary">
+      <i class="bi bi-house-door-fill"></i> Back to Active Listings
+    </a>
+  </div>
+</div>
+{% endblock %}
+

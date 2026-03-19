@@ -9,7 +9,6 @@ from django.utils import timezone
 
 from .models import User, Listing, Bid, Comment, Category
 from .forms import CreateListingForm, BidForm, CommentForm
-
 # --- Unified Listing Detail View ---
 def listing_detail(request, listing_id):
     listing = get_object_or_404(Listing, pk=listing_id)
@@ -54,7 +53,10 @@ def listing_detail(request, listing_id):
                     comment.save()
                     messages.success(request, "Comment added.")
                 else:
-                    messages.error(request, "Invalid comment.")
+                    # Loop through errors to avoid raw HTML
+                    for field, errors in comment_form.errors.items():
+                        for error in errors:
+                            messages.error(request, f"Invalid comment: {error}")
             return redirect("listing", listing_id=listing.id)
 
         # --- Handle Watchlist ---
@@ -89,6 +91,9 @@ def listing_detail(request, listing_id):
         "comment_form": comment_form,
         "form": bid_form
     })
+
+
+
 
 
 # --- Other Views ---
