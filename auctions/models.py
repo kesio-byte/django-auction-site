@@ -41,7 +41,7 @@ class Listing(models.Model):
     starting_bid = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to="listing_images/", blank=True, null=True)
     image_url = models.URLField(blank=True, null=True)
-    category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True, blank=True, related_name="listings")
+    categories = models.ManyToManyField("Category", blank=True, related_name="listings")
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
     active = models.BooleanField(default=True)
 
@@ -67,6 +67,17 @@ class Listing(models.Model):
         # Return the hightest bid
         return highest_bid.amount if highest_bid else self.starting_bid
 
+<<<<<<< HEAD
+=======
+# ---- Category model class ----
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+>>>>>>> faa0463 (Refactor migrations and enhance listing form/template)
 #       ---- Bid model class ----
 class Bid(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")

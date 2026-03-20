@@ -3,45 +3,193 @@
 {% block content %}
   <div class="container mb-5">
     <h2 class="mb-4">Create New Listing</h2>
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
 
+    <form id="listing-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Non-field errors -->
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <!-- Title -->
       <div class="mb-3">
         {{ form.title.label_tag }}
         {{ form.title }}
-        {{ form.title.errors }}
+        {% if form.title.errors %}
+          <div class="text-danger small">{{ form.title.errors }}</div>
+        {% endif %}
       </div>
 
+      <!-- Description with live counter -->
       <div class="mb-3">
         {{ form.description.label_tag }}
         {{ form.description }}
-        {{ form.description.errors }}
+        <small id="desc-counter" class="form-text text-muted">
+          0 / 10 characters minimum
+        </small>
+        {% if form.description.errors %}
+          <div class="text-danger small">{{ form.description.errors }}</div>
+        {% endif %}
       </div>
 
+      <!-- Starting Bid -->
       <div class="mb-3">
         {{ form.starting_bid.label_tag }}
         {{ form.starting_bid }}
         {% if form.starting_bid.errors %}
-          <div class="text-danger small">
-            {{ form.starting_bid.errors }}
-          </div>
+          <div class="text-danger small">{{ form.starting_bid.errors }}</div>
         {% endif %}
       </div>
 
+      <!-- Image File -->
       <div class="mb-3">
         {{ form.image.label_tag }}
         {{ form.image }}
-        {{ form.image.errors }}
+        <img id="file-preview" class="mt-2 img-thumbnail d-none" style="max-height:200px;">
+        {% if form.image.errors %}
+          <div class="text-danger small">{{ form.image.errors }}</div>
+        {% endif %}
       </div>
 
+      <!-- Image URL -->
       <div class="mb-3">
-        {{ form.category.label_tag }}
-        {{ form.category }}
-        {{ form.category.errors }}
+        {{ form.image_url.label_tag }}
+        {{ form.image_url }}
+        <img id="url-preview" class="mt-2 img-thumbnail d-none" style="max-height:200px;">
+        {% if form.image_url.errors %}
+          <div class="text-danger small">{{ form.image_url.errors }}</div>
+        {% endif %}
       </div>
 
-      <button type="submit" class="btn btn-primary mt-3">Create</button>
+      <!-- Categories with checkboxes -->
+      <div class="mb-3">
+        <label class="form-label">Categories (choose up to 2)</label>
+        <div id="categories-container">
+          {% for category in form.categories.field.queryset %}
+            <div class="form-check">
+              <input 
+                type="checkbox" 
+                name="categories" 
+                value="{{ category.id }}" 
+                id="cat{{ category.id }}" 
+                class="form-check-input category-checkbox"
+                {% if category.id|stringformat:"s" in form.categories.value %}checked{% endif %}>
+              <label for="cat{{ category.id }}" class="form-check-label">
+                {{ category.name }}
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+        <small id="category-warning" class="text-danger d-none">
+          You can select up to 2 categories only.
+        </small>
+        {% if form.categories.errors %}
+          <div class="text-danger small">{{ form.categories.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Active checkbox -->
+      <div class="form-check mb-3">
+        {{ form.active }}
+        {{ form.active.label_tag }}
+        {% if form.active.errors %}
+          <div class="text-danger small">{{ form.active.errors }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Submit button with spinner -->
+      <button id="submit-btn" type="submit" class="btn btn-primary mt-3">
+        <span id="submit-text">Create</span>
+        <span id="submit-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+      </button>
     </form>
   </div>
+
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Category limit
+      const checkboxes = document.querySelectorAll(".category-checkbox");
+      const warning = document.getElementById("category-warning");
+
+      checkboxes.forEach(cb => {
+        cb.addEventListener("change", function() {
+          const checked = document.querySelectorAll(".category-checkbox:checked");
+          if (checked.length > 2) {
+            this.checked = false; // undo the extra selection
+            warning.classList.remove("d-none");
+          } else {
+            warning.classList.add("d-none");
+          }
+        });
+      });
+
+      // Description counter
+      const descField = document.getElementById("id_description");
+      const counter = document.getElementById("desc-counter");
+
+      if (descField) {
+        descField.addEventListener("input", function() {
+          const length = descField.value.length;
+          counter.textContent = `${length} / 10 characters minimum`;
+          if (length < 10) {
+            counter.classList.add("text-danger");
+            counter.classList.remove("text-success");
+          } else {
+            counter.classList.add("text-success");
+            counter.classList.remove("text-danger");
+          }
+        });
+      }
+
+      // File preview
+      const fileInput = document.getElementById("id_image");
+      const filePreview = document.getElementById("file-preview");
+      if (fileInput) {
+        fileInput.addEventListener("change", function() {
+          const file = this.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              filePreview.src = e.target.result;
+              filePreview.classList.remove("d-none");
+            };
+            reader.readAsDataURL(file);
+          } else {
+            filePreview.classList.add("d-none");
+          }
+        });
+      }
+
+      // URL preview
+      const urlInput = document.getElementById("id_image_url");
+      const urlPreview = document.getElementById("url-preview");
+      if (urlInput) {
+        urlInput.addEventListener("input", function() {
+          const url = this.value.trim();
+          if (url) {
+            urlPreview.src = url;
+            urlPreview.classList.remove("d-none");
+          } else {
+            urlPreview.classList.add("d-none");
+          }
+        });
+      }
+
+      // Submit spinner
+      const form = document.getElementById("listing-form");
+      const submitBtn = document.getElementById("submit-btn");
+      const submitText = document.getElementById("submit-text");
+      const submitSpinner = document.getElementById("submit-spinner");
+
+      form.addEventListener("submit", function() {
+        submitBtn.disabled = true;
+        submitText.textContent = "Submitting...";
+        submitSpinner.classList.remove("d-none");
+      });
+    });
+  </script>
 {% endblock %}

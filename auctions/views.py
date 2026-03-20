@@ -105,8 +105,13 @@ def categories(request):
 
 
 def category_listings(request, category_id):
+<<<<<<< HEAD
     category = get_object_or_404(Category, pk=category_id)
     listings = Listing.objects.filter(active=True, category=category)
+=======
+    category = Category.objects.get(pk=category_id)
+    listings = Listing.objects.filter(active=True, categories=category)
+>>>>>>> faa0463 (Refactor migrations and enhance listing form/template)
     return render(request, "auctions/category_listings.html", {
         "category": category,
         "listings": listings
@@ -125,14 +130,21 @@ def create_listing(request):
         form = CreateListingForm(request.POST, request.FILES)
         if form.is_valid():
             listing = form.save(commit=False)
-            listing.owner = request.user
+            listing.owner = request.user  # set owner
             listing.save()
+            form.save_m2m()  # 👈 save categories (ManyToMany)
+            messages.success(request, "Listing created successfully!")
             return redirect("index")
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = CreateListingForm()
     return render(request, "auctions/create_listing.html", {"form": form})
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> faa0463 (Refactor migrations and enhance listing form/template)
 def index(request):
     listings = Listing.objects.filter(active=True)
     return render(request, "auctions/index.html", {"listings": listings})
