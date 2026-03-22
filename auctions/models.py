@@ -1,17 +1,16 @@
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.core.exceptions import ValidationError
 import re
 
-# --- The the forms validations function ---
+# --- Validation helper for forms ---
 def validate_contains_letter(value):
     # Require at least one alphabetic character
     if not re.search(r"[A-Za-z]", value):
         raise ValidationError("Must contain at least one letter.")
 
-# ---- Image model imagefield to category ----
+# ---- Category model with optional image ----
 class Category(models.Model):
     name = models.CharField(max_length=64, unique=True)
     image = models.ImageField(upload_to="category_images/", blank=True, null=True)
@@ -19,12 +18,12 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-# ---- User model extending abstractUser ----
+# ---- User model extending AbstractUser ----
 class User(AbstractUser):
     # Extend if needed
     pass
 
-# ---- The Listings model Class ---
+# ---- Listing model ----
 class Listing(models.Model):
     title = models.CharField(
         max_length=64,
@@ -48,48 +47,30 @@ class Listing(models.Model):
 
     watchers = models.ManyToManyField(User, blank=True, related_name="watchlist")
 
-    # ---- Date time created ---
     created_at = models.DateTimeField(auto_now_add=True)
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_listings")
     final_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    
-    # ---- Date time the auction is closed ----
     closed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-
-        # Return the listing title for a human-readable representation in admin and shell
         return self.title
 
     @property
     def current_price(self):
         highest_bid = self.bids.order_by('-amount').first()
-
-        # Return the hightest bid
         return highest_bid.amount if highest_bid else self.starting_bid
 
-<<<<<<< HEAD
-=======
-# ---- Category model class ----
-class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
->>>>>>> faa0463 (Refactor migrations and enhance listing form/template)
-#       ---- Bid model class ----
+# ---- Bid model ----
 class Bid(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
     bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    timestamp = models.DateTimeField(auto_now_add=True)  # captures bid time
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.amount} by {self.bidder} on {self.listing}"
 
-# ---- Comment model class ----
+# ---- Comment model ----
 class Comment(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
     commenter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
@@ -110,5 +91,3 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
-
-

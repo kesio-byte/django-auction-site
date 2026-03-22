@@ -9,6 +9,8 @@ from django.utils import timezone
 
 from .models import User, Listing, Bid, Comment, Category
 from .forms import CreateListingForm, BidForm, CommentForm
+
+
 # --- Unified Listing Detail View ---
 def listing_detail(request, listing_id):
     listing = get_object_or_404(Listing, pk=listing_id)
@@ -16,7 +18,6 @@ def listing_detail(request, listing_id):
     highest_bid = listing.bids.order_by("-amount").first()
     current_price = highest_bid.amount if highest_bid else listing.starting_bid
 
-    # Default forms
     comment_form = CommentForm()
     bid_form = BidForm()
 
@@ -53,7 +54,6 @@ def listing_detail(request, listing_id):
                     comment.save()
                     messages.success(request, "Comment added.")
                 else:
-                    # Loop through errors to avoid raw HTML
                     for field, errors in comment_form.errors.items():
                         for error in errors:
                             messages.error(request, f"Invalid comment: {error}")
@@ -93,9 +93,6 @@ def listing_detail(request, listing_id):
     })
 
 
-
-
-
 # --- Other Views ---
 def categories(request):
     categories = Category.objects.all()
@@ -105,13 +102,8 @@ def categories(request):
 
 
 def category_listings(request, category_id):
-<<<<<<< HEAD
     category = get_object_or_404(Category, pk=category_id)
-    listings = Listing.objects.filter(active=True, category=category)
-=======
-    category = Category.objects.get(pk=category_id)
     listings = Listing.objects.filter(active=True, categories=category)
->>>>>>> faa0463 (Refactor migrations and enhance listing form/template)
     return render(request, "auctions/category_listings.html", {
         "category": category,
         "listings": listings
@@ -130,9 +122,9 @@ def create_listing(request):
         form = CreateListingForm(request.POST, request.FILES)
         if form.is_valid():
             listing = form.save(commit=False)
-            listing.owner = request.user  # set owner
+            listing.owner = request.user
             listing.save()
-            form.save_m2m()  # 👈 save categories (ManyToMany)
+            form.save_m2m()
             messages.success(request, "Listing created successfully!")
             return redirect("index")
         else:
@@ -141,10 +133,7 @@ def create_listing(request):
         form = CreateListingForm()
     return render(request, "auctions/create_listing.html", {"form": form})
 
-<<<<<<< HEAD
 
-=======
->>>>>>> faa0463 (Refactor migrations and enhance listing form/template)
 def index(request):
     listings = Listing.objects.filter(active=True)
     return render(request, "auctions/index.html", {"listings": listings})
