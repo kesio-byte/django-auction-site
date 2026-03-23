@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from .models import User, Category, Listing, Bid, Comment
 from django.contrib import messages
+from django.utils import timezone
 
 # --- Inline classes for Bids and Comments ---
 class BidInline(admin.TabularInline):
@@ -72,26 +73,6 @@ class ListingAdminForm(forms.ModelForm):
 
         return cleaned_data
 
-
-# --- Listing Admin ---
-class ListingAdmin(admin.ModelAdmin):
-    form = ListingAdminForm
-    list_display = ("title", "owner", "starting_bid", "active", "created_at")
-    list_filter = ("active", "owner", "categories")
-    search_fields = ("title", "description")
-    date_hierarchy = "created_at"
-    readonly_fields = ("created_at",)
-
-    fieldsets = (
-        ("Basic Info", {"fields": ("title", "description", "image", "image_url")}),
-        ("Auction Details", {"fields": ("starting_bid", "categories", "active")}),
-        ("Ownership", {"fields": ("owner", "watchers")}),
-        ("Timestamps", {"fields": ("created_at",)}),
-    )
-
-    inlines = [BidInline, CommentInline]
-
-
 # --- Custom form for Bid validations ---
 class BidAdminForm(forms.ModelForm):
     class Meta:
@@ -118,6 +99,30 @@ class BidAdminForm(forms.ModelForm):
 
         return cleaned_data
 
+# --- Listing Admin ---
+class ListingAdmin(admin.ModelAdmin):
+    form = ListingAdminForm
+    list_display = ("title", "owner", "starting_bid", "active", "created_at", "winner", "final_price")
+    actions = ["close_auction", "remove_item"]
+
+    def close_auction(self, request, queryset):
+        for listing in queryset:
+            highest_bid = listing.bids.order_by("-amount").first()
+            if highest_bid:
+                listing.winner = highest_bid.bidder
+                listing.final_price = highest_bid.amount
+            listing.active = False
+            listing.closed_at = timezone.now()
+            listing.save()
+        self.message_user(request, "Selected auctions have been closed.", level=messages.SUCCESS)
+
+    close_auction.short_description = "Close selected auctions"
+
+    def remove_item(self, request, queryset):
+        queryset.delete()
+        self.message_user(request, "Selected items have been removed.", level=messages.WARNING)
+
+    remove_item.short_description = "Remove selected items"
 
 # --- Bid Admin ---
 class BidAdmin(admin.ModelAdmin):
