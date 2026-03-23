@@ -34,10 +34,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',   # local development
     'localhost',   # local dev
     '[::1]',       # IPv6 localhost
-    'yourdomain.com',  # replace with your production domain
-    'your-server-ip'   # optional, if you access via IP
 ]
-
 # Application definition
 
 INSTALLED_APPS = [
