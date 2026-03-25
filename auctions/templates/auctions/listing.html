@@ -1,6 +1,3 @@
-{# auctions/templates/auctions/listing.html
-   Displays a single auction listing with details, bid history, forms, and comments #}
-
 {% extends "auctions/layout.html" %}
 {% block content %}
 
@@ -85,7 +82,8 @@
             onclick="this.innerText = this.innerText.includes('Show') ? 'Hide Full History' : 'Show Full History'">
       Show Full History
     </button>
-
+    
+    <!-----The whole bidding story beneath here----->
     <div class="collapse" id="fullBidHistory">
       <ul class="list-group mb-4">
         {% for bid in listing.bids.all|dictsortreversed:"timestamp" %}

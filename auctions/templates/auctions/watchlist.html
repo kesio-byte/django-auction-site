@@ -1,8 +1,6 @@
-{# auctions/templates/auctions/watchlist.html
-   Displays the logged-in user's watchlist with listing cards #}
-
 {% extends "auctions/layout.html" %}
 {% block content %}
+
   <!-- Watchlist Header -->
   <h2 class="mb-4 text-center">
     My Watchlist 
@@ -28,7 +26,14 @@
             <p class="card-text text-muted">{{ listing.description|truncatewords:20 }}</p>
 
             <!-- Extra Fields: Category and Owner -->
-            <p class="mb-1"><strong>Category:</strong> {{ listing.category.name }}</p>
+            <p class="mb-1"><strong>Categories:</strong>
+              {% for cat in listing.categories.all %}
+                  <span class="badge bg-secondary">{{ cat.name }}</span>
+              {% empty %}
+                  <span class="text-muted">Uncategorized</span>
+              {% endfor %}
+            </p>
+
             <p class="mb-2"><strong>Listed by:</strong> {{ listing.owner.username }}</p>
 
             <!-- Status and Price -->

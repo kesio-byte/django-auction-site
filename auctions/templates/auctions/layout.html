@@ -112,11 +112,15 @@
     {% for message in messages %}
       <div class="alert alert-{{ message.tags }} alert-dismissible fade show d-flex align-items-center" role="alert"
            style="
+
+             <!----All the messages are here ------>
              {% if message.tags == 'success' %}background: linear-gradient(90deg, #28a745, #218838); color: #fff;{% endif %}
              {% if message.tags == 'error' or message.tags == 'danger' %}background: linear-gradient(90deg, #dc3545, #c82333); color: #fff;{% endif %}
              {% if message.tags == 'warning' %}background: linear-gradient(90deg, #ffc107, #e0a800); color: #212529;{% endif %}
              {% if message.tags == 'info' %}background: linear-gradient(90deg, #17a2b8, #138496); color: #fff;{% endif %}
            ">
+
+        <!---- Conditions block for alerts messages ---->
         {% if message.tags == "success" %}
           <i class="bi bi-check-circle-fill me-2"></i>
         {% elif message.tags == "error" or message.tags == "danger" %}
@@ -138,6 +142,8 @@
   {% block content %}
   {% endblock %}
 </main>
+
+<!-----Welcome Mr Footer my best friend ----->
 <footer class="bg-light py-3 mt-auto">
   <p class="text-center text-secondary mb-0">
     &copy; 2026 Auction Site | Powered by Django
