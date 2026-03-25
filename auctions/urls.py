@@ -2,6 +2,8 @@ from django.urls import path
 
 from . import views
 
+# ---- auctions/urls.py ----
+# Defines URL patterns for the auctions app, mapping routes to view functions
 urlpatterns = [
     path("my_listings", views.my_listings, name="my_listings"),
     path("", views.index, name="index"),

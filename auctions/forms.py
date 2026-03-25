@@ -3,6 +3,7 @@ from .models import Listing, Comment, Category
 import re
 
 # ----- Category Form -----
+# Handles creation of new categories with duplicate prevention
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
@@ -19,6 +20,7 @@ class CategoryForm(forms.ModelForm):
 
 
 # ----- Create Listing Form -----
+# Used when adding a new auction listing, with full validation
 class CreateListingForm(forms.ModelForm):
     class Meta:
         model = Listing
@@ -33,6 +35,7 @@ class CreateListingForm(forms.ModelForm):
             'active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
+    # -------Validation corner below --------------
     def clean_title(self):
         title = self.cleaned_data.get("title", "").strip()
         if len(title) < 3:
@@ -78,8 +81,8 @@ class CreateListingForm(forms.ModelForm):
             raise forms.ValidationError("Provide only one image source: file OR URL, not both.")
         return cleaned_data
 
-
 # ----- Listing Form (for editing) -----
+# Used for editing existing listings, lighter validation
 class ListingForm(forms.ModelForm):
     class Meta:
         model = Listing
@@ -100,8 +103,8 @@ class ListingForm(forms.ModelForm):
             raise forms.ValidationError("Starting bid must be greater than zero.")
         return bid
 
-
 # ----- Bid Form -----
+# Simple form for placing a bid on a listing
 class BidForm(forms.Form):
     bid = forms.FloatField(
         label="Your Bid",
@@ -112,8 +115,8 @@ class BidForm(forms.Form):
         }
     )
 
-
 # ----- Comment Form -----
+# Allows users to add comments with length and character restrictions
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment

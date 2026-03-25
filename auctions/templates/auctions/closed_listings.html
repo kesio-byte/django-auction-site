@@ -1,6 +1,10 @@
-{% extends "auctions/layout.html" %}
+{# auctions/templates/auctions/closed_listings.html
+   Displays all closed listings on the homepage #}
 
+{% extends "auctions/layout.html" %}
 {% block content %}
+
+<!---- Body ----->
   <h2>Closed Listings</h2>
   <div class="row">
     {% for listing in listings %}
@@ -32,7 +36,7 @@
 		</p>
 
               {% if user == listing.winner %}
-                <p class="badge bg-success">🎉 You won this auction!</p>
+                <p class="badge bg-success"> You won this auction!</p>
               {% endif %}
             {% else %}
               <p class="alert alert-info">

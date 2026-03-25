@@ -1,5 +1,9 @@
+{# auctions/templates/auctions/index.html
+   Displays all active listings on the homepage #}
+
 {% extends "auctions/layout.html" %}
 
+<!-- Summary Badges: counts for active, my listings, watchlist, closed, wins -->
 <div class="d-flex justify-content-around mb-4">
   <span class="badge bg-success">Active: {{ active_count }}</span>
   <span class="badge bg-secondary">My Listings: {{ my_listings_count }}</span>
@@ -10,27 +14,39 @@
 
 {% block content %}
 <div class="container mt-4 mb-5">
+  <!-- Section Header -->
   <h2 class="mb-4">Active Listings</h2>
+
   <div class="row">
     {% for listing in listings %}
+      <!-- Single Listing Card -->
       <div class="col-md-4 mb-4">
         <div class="card h-100 shadow-sm">
+          <!-- Listing Image -->
           {% if listing.image %}
             <img src="{{ listing.image.url }}" class="card-img-top" alt="{{ listing.title }}">
           {% endif %}
+
           <div class="card-body d-flex flex-column">
+            <!-- Title and Description -->
             <h5 class="card-title">{{ listing.title }}</h5>
             <p class="card-text text-muted">{{ listing.description|truncatewords:20 }}</p>
+
+            <!-- Current Price Badge -->
             <p class="card-text">
               <span class="badge bg-success">
                 Current Price: ${{ listing.current_price|floatformat:2 }}
               </span>
             </p>
+
+            <!-- Link to Listing Detail -->
             <a href="{% url 'listing' listing.id %}" class="btn btn-primary mt-auto">View Listing</a>
           </div>
         </div>
       </div>
     {% empty %}
+
+      <!-- Empty State: No Active Listings -->
       <div class="col-12">
         <div class="alert alert-info">No active listings available.</div>
       </div>

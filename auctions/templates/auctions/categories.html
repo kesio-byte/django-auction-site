@@ -1,13 +1,15 @@
-{% extends "auctions/layout.html" %}
+{# auctions/templates/auctions/categories.html
+   Displays all categories with their listings and counts #}
 
+{% extends "auctions/layout.html" %}
 {% block content %}
+
 <!-- Banner section -->
 <div class="py-4 mb-4 text-center" 
      style="background: linear-gradient(135deg, #fdf3e7, #e6d5c3); color: #5a4634;">
   <h2 class="fw-bold">Browse Categories</h2>
   <p class="mb-0">Discover auctions by category and explore listings below</p>
 </div>
-
 <div class="row">
   {% for category in categories %}
     <div class="col-md-6 mb-4">
@@ -51,6 +53,8 @@
                 </div>
               </div>
             {% empty %}
+
+            <!-- Category Loop -->
               <p class="text-muted">No listings available in this category.</p>
             {% endfor %}
           </div>

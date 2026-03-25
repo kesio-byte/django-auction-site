@@ -23,7 +23,7 @@ class CommentInline(admin.TabularInline):
     show_change_link = True
 
 
-# ✅ Category Admin with clickable listing count + image preview
+#  Category Admin with clickable listing count + image preview
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name", "listing_count", "image_preview")
     search_fields = ("name",)

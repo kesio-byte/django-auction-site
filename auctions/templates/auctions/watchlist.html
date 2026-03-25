@@ -1,6 +1,9 @@
-{% extends "auctions/layout.html" %}
+{# auctions/templates/auctions/watchlist.html
+   Displays the logged-in user's watchlist with listing cards #}
 
+{% extends "auctions/layout.html" %}
 {% block content %}
+  <!-- Watchlist Header -->
   <h2 class="mb-4 text-center">
     My Watchlist 
     <span class="badge bg-info text-dark ms-2">{{ watchlist_count }}</span>
@@ -8,8 +11,11 @@
 
   <div class="row">
     {% for listing in listings %}
+      <!-- Single Listing Card -->
       <div class="col-md-4 mb-4">
         <div class="card h-100 shadow-sm">
+          
+          <!-- Listing Image -->
           {% if listing.image %}
             <img src="{{ listing.image.url }}" class="card-img-top" alt="{{ listing.title }}">
           {% elif listing.image_url %}
@@ -17,13 +23,15 @@
           {% endif %}
 
           <div class="card-body d-flex flex-column">
+            <!-- Title and Description -->
             <h5 class="card-title">{{ listing.title }}</h5>
             <p class="card-text text-muted">{{ listing.description|truncatewords:20 }}</p>
 
-            <!-- New fields -->
+            <!-- Extra Fields: Category and Owner -->
             <p class="mb-1"><strong>Category:</strong> {{ listing.category.name }}</p>
             <p class="mb-2"><strong>Listed by:</strong> {{ listing.owner.username }}</p>
 
+            <!-- Status and Price -->
             {% if listing.active %}
               <span class="badge bg-success mb-2">Active</span>
               <p><strong>Current Price:</strong> ${{ listing.current_price }}</p>
@@ -32,11 +40,14 @@
               <p><strong>Final Price:</strong> ${{ listing.final_price }}</p>
             {% endif %}
 
+            <!-- Link to Listing Detail -->
             <a href="{% url 'listing' listing.id %}" class="btn btn-primary mt-auto">View Listing</a>
           </div>
         </div>
       </div>
     {% empty %}
+
+      <!-- Empty State: No Watchlist Items -->
       <div class="col-12">
         <div class="alert alert-info text-center">You have no items in your watchlist.</div>
       </div>

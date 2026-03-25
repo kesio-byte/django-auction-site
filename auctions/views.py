@@ -93,14 +93,14 @@ def listing_detail(request, listing_id):
     })
 
 
-# --- Other Views ---
+# --- Category View ---
 def categories(request):
     categories = Category.objects.all()
     for category in categories:
         category.active_count = category.listings.filter(active=True).count()
     return render(request, "auctions/categories.html", {"categories": categories})
 
-
+#-------Category view ------------
 def category_listings(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
     listings = Listing.objects.filter(active=True, categories=category)
@@ -109,13 +109,13 @@ def category_listings(request, category_id):
         "listings": listings
     })
 
-
+#----------Watchlist view ----------
 @login_required
 def watchlist(request):
     listings = request.user.watchlist.all()
     return render(request, "auctions/watchlist.html", {"listings": listings})
 
-
+#-------Create listing  view---------
 @login_required
 def create_listing(request):
     if request.method == "POST":
@@ -133,7 +133,7 @@ def create_listing(request):
         form = CreateListingForm()
     return render(request, "auctions/create_listing.html", {"form": form})
 
-
+#------------Index--------------
 def index(request):
     listings = Listing.objects.filter(active=True)
     return render(request, "auctions/index.html", {"listings": listings})
@@ -156,7 +156,7 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
-
+# --------Register view--------------
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
@@ -176,25 +176,25 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     return render(request, "auctions/register.html")
 
-
+#-----------My listings view ----------
 @login_required
 def my_listings(request):
     listings = Listing.objects.filter(owner=request.user)
     return render(request, "auctions/my_listings.html", {"listings": listings})
 
-
+#----------Closed listings view --------------
 @login_required
 def closed_listings(request):
     listings = Listing.objects.filter(active=False)
     return render(request, "auctions/closed_listings.html", {"listings": listings})
 
-
+#------------mywins-----------
 @login_required
 def my_wins(request):
     listings = Listing.objects.filter(active=False, winner=request.user)
     return render(request, "auctions/my_wins.html", {"listings": listings})
 
-
+#--------------mywins counter view-------------------
 def wins_count(request):
     if request.user.is_authenticated:
         count = Listing.objects.filter(active=False, winner=request.user).count()
